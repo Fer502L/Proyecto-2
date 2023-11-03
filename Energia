@@ -32,7 +32,7 @@ int bocina = PF_1;
 
 //***************************************************************************************************************************************
 // Functions Prototypes
-// 
+// Se declaran prototipos de funciones que se utilizarán posteriormente en el programa. Estas funciones incluyen inicialización de la LCD, envío de comandos y datos a la LCD, dibujo de formas en la pantalla, y visualización de texto y gráficos en la LCD.
 //***************************************************************************************************************************************
 void LCD_Init(void);
 void LCD_CMD(uint8_t cmd);
@@ -52,6 +52,7 @@ void LCD_Sprite(int x, int y, int width, int height, unsigned char bitmap[],int 
 extern uint8_t fondo[];
 //***************************************************************************************************************************************
 // Inicialización
+// La función setup configura la frecuencia del reloj del sistema, inicializa la comunicación serie (Serial) y configura pines para entrada/salida. Además, inicia la pantalla LCD y la limpia.
 //***************************************************************************************************************************************
 void setup() {
   SysCtlClockSet(SYSCTL_SYSDIV_2_5|SYSCTL_USE_PLL|SYSCTL_OSC_MAIN|SYSCTL_XTAL_16MHZ);
@@ -68,6 +69,7 @@ void setup() {
 
 //***************************************************************************************************************************************
 // Loop Infinito
+// El bucle principal loop se ejecuta continuamente y realiza dos tareas. Primero, verifica si un botón está presionado y envía un valor al puerto serie (Serial2) si es así. Luego, si hay datos disponibles en el puerto serie (Serial2), lee un valor y lo muestra en la pantalla LCD.
 //***************************************************************************************************************************************
 void loop() {
   if (digitalRead(save) == LOW){
@@ -85,6 +87,8 @@ void loop() {
 }
 //***************************************************************************************************************************************
 // Función para inicializar LCD
+// Estas funciones son responsables de la inicialización de la pantalla LCD, envío de comandos y datos a la LCD. Configuran varios parámetros de la LCD, como el formato de píxeles, gamma, velocidad de fotogramas, etc.
+// Estas funciones permiten dibujar en la pantalla LCD. Puedes utilizarlas para dibujar líneas horizontales y verticales, rectángulos, texto y bitmaps. La función LCD_Print se utiliza para mostrar texto en la pantalla LCD, y las funciones LCD_Bitmap y LCD_Sprite se utilizan para mostrar imágenes.
 //***************************************************************************************************************************************
 void LCD_Init(void) {
   pinMode(LCD_RST, OUTPUT);
