@@ -1,5 +1,4 @@
-
-//********** Se incluyen diversas bibliotecas de controladores y definiciones de pines utilizados para conectar la pantalla LCD y otros componentes al microcontrolador.**********//
+//***************************************************************************************************************************************
 #include <stdint.h>
 #include <stdbool.h>
 #include <TM4C123GH6PM.h>
@@ -14,25 +13,24 @@
 #include "driverlib/sysctl.h"
 #include "driverlib/timer.h"
 
-#include "bitmaps.h"
-#include "font.h"
-#include "lcd_registers.h"
+#include "bitmaps.h"        // Incluye un archivo de mapas de bits
+#include "font.h"            // Incluye un archivo de fuentes
+#include "lcd_registers.h"   // Incluye un archivo con registros de la pantalla
 
 #define LCD_RST PD_0
 #define LCD_CS PD_1
 #define LCD_RS PD_2
 #define LCD_WR PD_3
 #define LCD_RD PE_1
-int DPINS[] = {PB_0, PB_1, PB_2, PB_3, PB_4, PB_5, PB_6, PB_7};
+int DPINS[] = {PB_0, PB_1, PB_2, PB_3, PB_4, PB_5, PB_6, PB_7}; // Arreglo de pines digitales
 
 int boton = 0;
-int medir = PF_0;
-int save  = PF_4;
-int bocina = PF_1;
+int medir = PF_0;   // Define el pin para medir
+int save  = PF_4;   // Define el pin para guardar
+int bocina = PF_1;  // Define el pin para la bocina
 
 //***************************************************************************************************************************************
-// Functions Prototypes
-// Se declaran prototipos de funciones que se utilizarán posteriormente en el programa. Estas funciones incluyen inicialización de la LCD, envío de comandos y datos a la LCD, dibujo de formas en la pantalla, y visualización de texto y gráficos en la LCD.
+// Funciones Prototipo
 //***************************************************************************************************************************************
 void LCD_Init(void);
 void LCD_CMD(uint8_t cmd);
@@ -48,58 +46,52 @@ void LCD_Print(String text, int x, int y, int fontSize, int color, int backgroun
 void LCD_Bitmap(unsigned int x, unsigned int y, unsigned int width, unsigned int height, unsigned char bitmap[]);
 void LCD_Sprite(int x, int y, int width, int height, unsigned char bitmap[],int columns, int index, char flip, char offset);
 
-
 extern uint8_t fondo[];
+
 //***************************************************************************************************************************************
 // Inicialización
-// La función setup configura la frecuencia del reloj del sistema, inicializa la comunicación serie (Serial) y configura pines para entrada/salida. Además, inicia la pantalla LCD y la limpia.
 //***************************************************************************************************************************************
 void setup() {
-  SysCtlClockSet(SYSCTL_SYSDIV_2_5|SYSCTL_USE_PLL|SYSCTL_OSC_MAIN|SYSCTL_XTAL_16MHZ);
-  Serial.begin(115200);
+  SysCtlClockSet(SYSCTL_SYSDIV_2_5|SYSCTL_USE_PLL|SYSCTL_OSC_MAIN|SYSCTL_XTAL_16MHZ); // Configura la frecuencia del reloj del sistema
+  Serial.begin(115200); // Inicializa la comunicación serie con velocidad de 115200 baudios
   GPIOPadConfigSet(GPIO_PORTB_BASE, 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7, GPIO_STRENGTH_8MA, GPIO_PIN_TYPE_STD_WPU);
   Serial.println("Inicio"); 
-  LCD_Init();
-  LCD_Clear(0x00);
-  Serial.begin(115200);
-  Serial2.begin(115200);  
-  // put your setup code here, to run once:
-  pinMode(medir, INPUT_PULLUP);  
- }
+  LCD_Init(); // Inicializa la pantalla LCD
+  LCD_Clear(0x00); // Limpia la pantalla LCD
+  Serial.begin(115200); // Inicializa nuevamente la comunicación serie
+  Serial2.begin(115200); // Inicializa otra comunicación serie (Serial2)
+  pinMode(medir, INPUT_PULLUP); // Configura el pin de medición como entrada con resistencia pull-up
+}
 
 //***************************************************************************************************************************************
 // Loop Infinito
-// El bucle principal loop se ejecuta continuamente y realiza dos tareas. Primero, verifica si un botón está presionado y envía un valor al puerto serie (Serial2) si es así. Luego, si hay datos disponibles en el puerto serie (Serial2), lee un valor y lo muestra en la pantalla LCD.
 //***************************************************************************************************************************************
 void loop() {
   if (digitalRead(save) == LOW){
     boton = 1; 
-    Serial2.write(boton);
-    
-}
+    Serial2.write(boton); // Envía un valor (1) a través del puerto serie Serial2
+  }
   if (Serial2.available() > 0){
-    String info = Serial2.readStringUntil('\n');
+    String info = Serial2.readStringUntil('\n'); // Lee una cadena hasta el carácter de nueva línea
     Serial.print("La temperatura es: ");
-    Serial.print(info);
+    Serial.print(info); // Imprime la temperatura en el monitor serial
     String text1 = info;
-    LCD_Print(text1, 20, 100, 2, 0xffff, 0x421b);
-}
+    LCD_Print(text1, 20, 100, 2, 0xffff, 0x421b); // Muestra la temperatura en la pantalla LCD
+  }
 }
 //***************************************************************************************************************************************
 // Función para inicializar LCD
-// Estas funciones son responsables de la inicialización de la pantalla LCD, envío de comandos y datos a la LCD. Configuran varios parámetros de la LCD, como el formato de píxeles, gamma, velocidad de fotogramas, etc.
-// Estas funciones permiten dibujar en la pantalla LCD. Puedes utilizarlas para dibujar líneas horizontales y verticales, rectángulos, texto y bitmaps. La función LCD_Print se utiliza para mostrar texto en la pantalla LCD, y las funciones LCD_Bitmap y LCD_Sprite se utilizan para mostrar imágenes.
 //***************************************************************************************************************************************
 void LCD_Init(void) {
-  pinMode(LCD_RST, OUTPUT);
-  pinMode(LCD_CS, OUTPUT);
-  pinMode(LCD_RS, OUTPUT);
-  pinMode(LCD_WR, OUTPUT);
-  pinMode(LCD_RD, OUTPUT);
+  pinMode(LCD_RST, OUTPUT); // Configura el pin de reinicio como salida
+  pinMode(LCD_CS, OUTPUT); // Configura el pin de selección de chip como salida
+  pinMode(LCD_RS, OUTPUT); // Configura el pin de selección de registro como salida
+  pinMode(LCD_WR, OUTPUT); // Configura el pin de escritura como salida
+  pinMode(LCD_RD, OUTPUT); // Configura el pin de lectura como salida
   for (uint8_t i = 0; i < 8; i++){
-    pinMode(DPINS[i], OUTPUT);
+    pinMode(DPINS[i], OUTPUT); // Configura los pines digitales como salida
   }
-  //****************************************
+   //****************************************
   // Secuencia de Inicialización
   //****************************************
   digitalWrite(LCD_CS, HIGH);
@@ -432,8 +424,6 @@ void LCD_Sprite(int x, int y, int width, int height, unsigned char bitmap[],int 
       k = k + 2;
      } 
   }
-    
-    
     }
   digitalWrite(LCD_CS, HIGH);
-} 
+}
