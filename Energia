@@ -1,5 +1,5 @@
 
-//***************************************************************************************************************************************
+//********** Se incluyen diversas bibliotecas de controladores y definiciones de pines utilizados para conectar la pantalla LCD y otros componentes al microcontrolador.**********//
 #include <stdint.h>
 #include <stdbool.h>
 #include <TM4C123GH6PM.h>
@@ -32,6 +32,7 @@ int bocina = PF_1;
 
 //***************************************************************************************************************************************
 // Functions Prototypes
+// 
 //***************************************************************************************************************************************
 void LCD_Init(void);
 void LCD_CMD(uint8_t cmd);
